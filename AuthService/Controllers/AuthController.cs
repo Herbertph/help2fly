@@ -22,8 +22,15 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public IActionResult Register(RegisterDto dto)
+public IActionResult Register(RegisterDto dto)
+{
+    try
     {
+        if (_db.Users.Any(u => u.Username == dto.Username || u.Email == dto.Email))
+        {
+            return Conflict(new { message = "Username or email already exists" });
+        }
+
         var user = new User
         {
             Username = dto.Username,
@@ -36,6 +43,12 @@ public class AuthController : ControllerBase
 
         return Ok(new { message = "User created" });
     }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { message = "Unexpected error occurred", detail = ex.Message });
+    }
+}
+
 
     [HttpPost("login")]
     public IActionResult Login(LoginDto dto)
