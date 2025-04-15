@@ -24,12 +24,16 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
 public IActionResult Register(RegisterDto dto)
 {
+     if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
     try
     {
-        if (_db.Users.Any(u => u.Username == dto.Username || u.Email == dto.Email))
-        {
-            return Conflict(new { message = "Username or email already exists" });
-        }
+        if (_db.Users.Any(u => u.Username == dto.Username))
+            return Conflict(new { message = "Username already exists" });
+
+        if (_db.Users.Any(u => u.Email == dto.Email))
+            return Conflict(new { message = "Email already exists" });
 
         var user = new User
         {
@@ -49,10 +53,12 @@ public IActionResult Register(RegisterDto dto)
     }
 }
 
-
     [HttpPost("login")]
     public IActionResult Login(LoginDto dto)
     {
+         if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+        
         var user = _db.Users.FirstOrDefault(u => u.Username == dto.Username);
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             return Unauthorized(new { message = "Invalid credentials" });
