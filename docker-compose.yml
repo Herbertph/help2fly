@@ -10,6 +10,14 @@ services:
     volumes:
       - ./AuthService:/src/AuthService
 
+  app-backend:
+    build: ./app-backend
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_AUTH_URL=http://auth-service:80
+    depends_on:
+      - auth-service
 
   auth-db:
     image: postgres:15
