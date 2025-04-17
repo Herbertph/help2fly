@@ -16,8 +16,10 @@ services:
       - "3001:3000"
     environment:
       - NEXT_PUBLIC_AUTH_URL=http://auth-service:80
+      - DATABASE_URL=postgresql://admin:admin@auth-db:5432/authdb
     depends_on:
       - auth-service
+      
 
   auth-db:
     image: postgres:15

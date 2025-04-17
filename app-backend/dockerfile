@@ -6,6 +6,9 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+COPY .env .env
+
+RUN npx prisma generate
 RUN npm run build
 
 # Etapa 2: Runtime
@@ -13,6 +16,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY --from=builder /app ./
+COPY .env .env  
 
 EXPOSE 3000
 CMD ["npm", "start"]
