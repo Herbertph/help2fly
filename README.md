@@ -1,26 +1,55 @@
-# AuthService
+# Help2Fly - Travel Planning Application
 
-A secure authentication service built with .NET 8.0 that provides user registration, login, and token-based authentication functionality.
+A full-stack application for planning and managing trips, built with Next.js and .NET.
 
-## Features
+## Project Structure
 
-- User registration with username, email, and password
-- Secure login with JWT token generation
-- Password hashing using BCrypt
-- Protected endpoints with JWT authentication
-- PostgreSQL database integration
-- Entity Framework Core for data access
+The project consists of two main services:
+
+1. **AuthService** (.NET 8.0)
+   - Handles user authentication and authorization
+   - JWT-based authentication
+   - User registration and login
+
+2. **App Backend** (Next.js)
+   - Trip management functionality
+   - User-specific trip operations
+   - RESTful API endpoints
 
 ## Prerequisites
 
+- Node.js 18+ and npm
 - .NET 8.0 SDK
 - PostgreSQL database
-- Docker (optional, for containerized deployment)
+- Docker (optional)
 
-## Configuration
+## Getting Started
 
-The service requires the following configuration in `appsettings.json`:
+### 1. AuthService Setup
 
+```bash
+cd AuthService
+dotnet restore
+dotnet build
+dotnet run
+```
+
+The AuthService will run on `https://localhost:5001`
+
+### 2. App Backend Setup
+
+```bash
+cd app-backend
+npm install
+npm run dev
+```
+
+The Next.js application will run on `http://localhost:3000`
+
+## Environment Configuration
+
+### AuthService
+Create `appsettings.json`:
 ```json
 {
   "ConnectionStrings": {
@@ -32,74 +61,103 @@ The service requires the following configuration in `appsettings.json`:
 }
 ```
 
-## API Endpoints
-
-### Register
-- **POST** `/auth/register`
-- Creates a new user account
-- Request body:
-  ```json
-  {
-    "username": "string",
-    "email": "string",
-    "password": "string"
-  }
-  ```
-
-### Login
-- **POST** `/auth/login`
-- Authenticates a user and returns a JWT token
-- Request body:
-  ```json
-  {
-    "username": "string",
-    "password": "string"
-  }
-  ```
-
-### Get Current User
-- **GET** `/auth/me`
-- Returns the current authenticated user's information
-- Requires JWT authentication
-
-## Running the Service
-
-1. Clone the repository
-2. Navigate to the AuthService directory
-3. Update the connection string in `appsettings.json`
-4. Run the following commands:
-
-```bash
-dotnet restore
-dotnet build
-dotnet run
+### App Backend
+Create `.env` file:
+```
+DATABASE_URL="Your PostgreSQL connection string"
 ```
 
-The service will start on `https://localhost:5001` by default.
+## API Endpoints
+
+### Authentication (AuthService)
+- **POST** `/auth/register`
+  - Register a new user
+  - Body: `{ "username": string, "email": string, "password": string }`
+
+- **POST** `/auth/login`
+  - Login and get JWT token
+  - Body: `{ "username": string, "password": string }`
+
+- **GET** `/auth/me`
+  - Get current user info
+  - Requires JWT token
+
+### Trip Management (App Backend)
+- **GET** `/api/trips`
+  - Get all trips
+  - Requires authentication
+
+- **GET** `/api/mytrips`
+  - Get user's trips
+  - Requires authentication
+
+## Testing the Application
+
+1. **Register a User**
+```bash
+curl -X POST http://localhost:5001/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","email":"test@example.com","password":"password123"}'
+```
+
+2. **Login**
+```bash
+curl -X POST http://localhost:5001/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"password123"}'
+```
+
+3. **Create a Trip**
+```bash
+curl -X POST http://localhost:3000/api/trips \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"from":"New York","to":"London","dateStart":"2024-05-01","dateEnd":"2024-05-10"}'
+```
+
+4. **Get User's Trips**
+```bash
+curl -X GET http://localhost:3000/api/mytrips \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
 
 ## Development
 
-To add new migrations:
+### Database Migrations
 
+For AuthService:
 ```bash
+cd AuthService
 dotnet ef migrations add <MigrationName>
 dotnet ef database update
 ```
 
+For App Backend:
+```bash
+cd app-backend
+npx prisma migrate dev
+```
+
 ## Security Features
 
-- Password hashing using BCrypt
 - JWT-based authentication
-- Secure token validation
-- Protection against common security vulnerabilities
+- Password hashing with BCrypt
+- Protected API endpoints
+- Secure database connections
 
 ## Dependencies
 
+### AuthService
 - BCrypt.Net-Next (4.0.3)
 - Microsoft.AspNetCore.Authentication.JwtBearer (8.0.4)
 - Microsoft.EntityFrameworkCore (8.0.4)
 - Npgsql.EntityFrameworkCore.PostgreSQL (8.0.3)
-- System.IdentityModel.Tokens.Jwt (8.8.0)
+
+### App Backend
+- Next.js 15.3.0
+- React 19
+- Prisma 6.6.0
+- jsonwebtoken 9.0.2
 
 ## License
 
