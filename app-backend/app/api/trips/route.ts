@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { from, to, dateStart, dateEnd } = body;
+    const { from, to, dateStart, dateEnd, role } = body;
 
     const userId = user["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] as string;
 
@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
         to,
         dateStart: new Date(dateStart),
         dateEnd: new Date(dateEnd),
+        role,
       },
     });
 

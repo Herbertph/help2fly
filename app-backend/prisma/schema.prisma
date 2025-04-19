@@ -21,7 +21,7 @@ model Trip {
   to        String
   dateStart DateTime
   dateEnd   DateTime
-  role      String
+  role      Role
   createdAt DateTime @default(now())
 }
 
@@ -29,4 +29,5 @@ enum Role {
   ACTIVE
   PASSIVE
 }
+
 
