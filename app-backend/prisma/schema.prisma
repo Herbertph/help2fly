@@ -23,6 +23,19 @@ model Trip {
   dateEnd   DateTime
   role      Role
   createdAt DateTime @default(now())
+
+  matchesInitiated Match[] @relation("FromTrip")
+  matchesReceived  Match[] @relation("ToTrip")
+}
+
+model Match {
+  id           String   @id @default(uuid())
+  fromTripId   String
+  toTripId     String
+  confirmedAt  DateTime @default(now())
+
+  fromTrip     Trip     @relation("FromTrip", fields: [fromTripId], references: [id])
+  toTrip       Trip     @relation("ToTrip", fields: [toTripId], references: [id])
 }
 
 enum Role {
