@@ -91,6 +91,21 @@ DATABASE_URL="Your PostgreSQL connection string"
   - Get user's trips
   - Requires authentication
 
+### Matchmaking (App Backend)
+- **GET** `/api/matchmaking`
+  - Find potential travel matches for user's trips
+  - Returns matching trips based on:
+    - Same destination
+    - Complementary roles (ACTIVE/PASSIVE)
+    - Overlapping dates
+  - Requires authentication
+
+### Matches (App Backend)
+- **POST** `/api/matches`
+  - Create a new match between two trips
+  - Body: `{ "fromTripId": string, "toTripId": string }`
+  - Requires authentication
+
 ## Testing the Application
 
 1. **Register a User**

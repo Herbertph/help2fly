@@ -34,8 +34,8 @@ model Match {
   toTripId     String
   confirmedAt  DateTime @default(now())
 
-  fromTrip     Trip     @relation("FromTrip", fields: [fromTripId], references: [id])
-  toTrip       Trip     @relation("ToTrip", fields: [toTripId], references: [id])
+  fromTrip     Trip     @relation("FromTrip", fields: [fromTripId], references: [id], onDelete: Cascade)
+  toTrip       Trip     @relation("ToTrip", fields: [toTripId], references: [id], onDelete: Cascade)
 }
 
 enum Role {
