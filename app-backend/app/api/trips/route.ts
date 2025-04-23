@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
+
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
@@ -34,20 +35,53 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const from = searchParams.get('from');
+    const to = searchParams.get('to');
+    const roleParam = searchParams.get('role');
+
+    const filters: {
+      from?: { contains: string; mode: 'insensitive' };
+      to?: { contains: string; mode: 'insensitive' };
+      role?: 'ACTIVE' | 'PASSIVE';
+    } = {};
+
+    if (from) {
+      filters.from = { contains: from, mode: 'insensitive' };
+    }
+
+    if (to) {
+      filters.to = { contains: to, mode: 'insensitive' };
+    }
+
+    if (roleParam) {
+      const upperRole = roleParam.toUpperCase();
+      if (upperRole === 'ACTIVE' || upperRole === 'PASSIVE') {
+        filters.role = upperRole;
+      } else {
+        console.warn('🚫 Role inválido recebido:', roleParam);
+        return NextResponse.json({ error: 'Invalid role filter' }, { status: 400 });
+      }
+    }
+
+    console.log('🧪 Filtros aplicados:', filters);
+
     const trips = await prisma.trip.findMany({
+      where: filters,
       orderBy: { createdAt: 'desc' },
     });
 
     return NextResponse.json(trips);
   } catch (error) {
-    console.error('Erro ao buscar viagens:', error);
+    console.error('❌ Erro ao buscar viagens:', error);
     return NextResponse.json({ error: 'Error fetching trips' }, { status: 500 });
   }
 }
 
-// ❗ O DELETE estava fora do escopo do arquivo
+
+
 export async function DELETE(req: NextRequest) {
   const user = verifyToken(req);
   if (!user) {
@@ -63,17 +97,17 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
-    console.log('🧨 DELETE trip chamado');
-    console.log(`🧨 Deletando trip ${tripId} do usuário ${username}`);
+    console.log(' DELETE trip chamado');
+    console.log(` Deletando trip ${tripId} do usuário ${username}`);
 
-    // Verifica se a trip pertence ao usuário
+    
     const trip = await prisma.trip.findUnique({ where: { id: tripId } });
 
     if (!trip || trip.userId !== username) {
       return NextResponse.json({ error: 'Trip not found or unauthorized' }, { status: 404 });
     }
 
-    // Remove todos os matches relacionados a essa trip (como origem ou destino)
+
     await prisma.match.deleteMany({
       where: {
         OR: [
@@ -88,13 +122,13 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ message: 'Trip deleted successfully' });
   } catch (error) {
-    console.error('❌ Erro ao deletar viagem:', error);
+    console.error('Erro ao deletar viagem:', error);
     return NextResponse.json({ error: 'Error deleting trip' }, { status: 500 });
   }
 }
 
 export async function PATCH(req: NextRequest) {
-  console.log('✏️ PATCH trip chamado!');
+  console.log('PATCH trip chamado!');
 
   const user = verifyToken(req);
   if (!user) {
@@ -105,7 +139,7 @@ export async function PATCH(req: NextRequest) {
   const body = await req.json();
   const { id, from, to, dateStart, dateEnd, role } = body;
 
-  console.log('📦 Dados recebidos para update:', body);
+  console.log('Dados recebidos para update:', body);
 
   if (!id) {
     return NextResponse.json({ error: 'Trip ID is required for update' }, { status: 400 });
@@ -129,11 +163,11 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
-    console.log('✅ Trip atualizada:', updatedTrip);
+    console.log('Trip atualizada:', updatedTrip);
 
     return NextResponse.json(updatedTrip, { status: 200 });
   } catch (error) {
-    console.error('❌ Erro ao atualizar viagem:', error);
+    console.error(' Erro ao atualizar viagem:', error);
     return NextResponse.json({ error: 'Error updating trip' }, { status: 500 });
   }
 }

@@ -12,18 +12,18 @@ export async function GET(req: NextRequest) {
   }
 
   const username = user["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] as string
-  console.log('🔑 Username extraído do token:', username)
+  console.log(' Username extraído do token:', username)
 
   try {
     const userTrips = await prisma.trip.findMany({
       where: { userId: username }
     })
-    console.log('📦 Viagens do usuário:', userTrips)
+    console.log(' Viagens do usuário:', userTrips)
 
     const matches = []
 
     for (const trip of userTrips) {
-      console.log('🚗 Verificando viagem:', trip)
+      console.log(' Verificando viagem:', trip)
 
       const potentialMatches = await prisma.trip.findMany({
         where: {
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         }
       })
 
-      console.log('🎯 Matches potenciais encontrados:', potentialMatches)
+      console.log(' Matches potenciais encontrados:', potentialMatches)
 
       for (const match of potentialMatches) {
         matches.push({
@@ -45,11 +45,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    console.log('✅ Matches finais:', matches)
+    console.log('Matches finais:', matches)
 
     return NextResponse.json(matches)
   } catch (error) {
-    console.error('❌ Erro no matchmaking:', error)
+    console.error('Erro no matchmaking:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

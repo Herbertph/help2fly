@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   const username = user["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] as string;
 
   try {
-    // 🧠 Busca os trips desse usuário
+  
     const userTrips = await prisma.trip.findMany({
       where: { userId: username },
       select: { id: true },
@@ -21,11 +21,10 @@ export async function GET(req: NextRequest) {
 
     const tripIds = userTrips.map((trip: { id: string }) => trip.id);
 
-    // 🎯 Busca os matches confirmados envolvendo os trips do usuário
     const matches = await prisma.match.findMany({
         where: {
           confirmedAt: {
-            not: undefined, // 👉 considera qualquer valor definido (ou seja, confirmado)
+            not: undefined, 
           },
           OR: [
             { fromTripId: { in: tripIds } },
@@ -41,7 +40,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(matches);
   } catch (error) {
-    console.error('❌ Erro ao buscar matches confirmados:', error);
+    console.error('Erro ao buscar matches confirmados:', error);
     return NextResponse.json({ error: 'Error fetching confirmed matches' }, { status: 500 });
   }
 }
