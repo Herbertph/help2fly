@@ -38,15 +38,14 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
+
     const from = searchParams.get('from');
     const to = searchParams.get('to');
     const roleParam = searchParams.get('role');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
 
-    const filters: {
-      from?: { contains: string; mode: 'insensitive' };
-      to?: { contains: string; mode: 'insensitive' };
-      role?: 'ACTIVE' | 'PASSIVE';
-    } = {};
+    const filters: Record<string, unknown> = {};
 
     if (from) {
       filters.from = { contains: from, mode: 'insensitive' };
@@ -61,24 +60,34 @@ export async function GET(req: NextRequest) {
       if (upperRole === 'ACTIVE' || upperRole === 'PASSIVE') {
         filters.role = upperRole;
       } else {
-        console.warn('🚫 Role inválido recebido:', roleParam);
         return NextResponse.json({ error: 'Invalid role filter' }, { status: 400 });
       }
     }
 
-    console.log('🧪 Filtros aplicados:', filters);
-
     const trips = await prisma.trip.findMany({
       where: filters,
       orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    return NextResponse.json(trips);
+    const total = await prisma.trip.count({ where: filters });
+
+    return NextResponse.json({
+      data: trips,
+      pagination: {
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+      },
+    });
   } catch (error) {
     console.error('❌ Erro ao buscar viagens:', error);
     return NextResponse.json({ error: 'Error fetching trips' }, { status: 500 });
   }
 }
+
 
 
 
