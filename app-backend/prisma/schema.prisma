@@ -33,6 +33,8 @@ model Match {
   fromTripId   String
   toTripId     String
   confirmedAt  DateTime @default(now())
+  status       MatchStatus @default(PENDING)
+
 
   fromTrip     Trip     @relation("FromTrip", fields: [fromTripId], references: [id], onDelete: Cascade)
   toTrip       Trip     @relation("ToTrip", fields: [toTripId], references: [id], onDelete: Cascade)
@@ -41,6 +43,13 @@ model Match {
 enum Role {
   ACTIVE
   PASSIVE
+}
+
+enum MatchStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELED
 }
 
 
