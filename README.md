@@ -84,8 +84,30 @@ DATABASE_URL="Your PostgreSQL connection string"
 
 ### Trip Management (App Backend)
 - **GET** `/api/trips`
-  - Get all trips
+  - Get all trips with filtering and pagination
+  - Query parameters:
+    - `from`: Filter by origin (case-insensitive)
+    - `to`: Filter by destination (case-insensitive)
+    - `role`: Filter by role (ACTIVE/PASSIVE)
+    - `page`: Page number (default: 1)
+    - `limit`: Items per page (default: 10)
+  - Returns paginated response with metadata
   - Requires authentication
+
+- **POST** `/api/trips`
+  - Create a new trip
+  - Body: `{ "from": string, "to": string, "dateStart": string, "dateEnd": string, "role": "ACTIVE" | "PASSIVE" }`
+  - Requires authentication
+
+- **PATCH** `/api/trips`
+  - Update an existing trip
+  - Body: `{ "id": string, "from": string, "to": string, "dateStart": string, "dateEnd": string, "role": "ACTIVE" | "PASSIVE" }`
+  - Requires authentication and trip ownership
+
+- **DELETE** `/api/trips?id={tripId}`
+  - Delete a trip and its associated matches
+  - Query parameter: `id` (trip ID)
+  - Requires authentication and trip ownership
 
 - **GET** `/api/mytrips`
   - Get user's trips

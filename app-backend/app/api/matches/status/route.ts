@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json(match);
   } catch (error) {
-    console.error('❌ Erro ao atualizar status do match:', error);
+    console.error('Error updating match status:', error);
     return NextResponse.json({ error: 'Error updating match status' }, { status: 500 });
   }
 }
